@@ -35,7 +35,7 @@ TWILIO_ACCOUNT_SID = os.environ.get("TWILIO_ACCOUNT_SID", "")
 TWILIO_AUTH_TOKEN  = os.environ.get("TWILIO_AUTH_TOKEN", "")
 TWILIO_WA_FROM     = os.environ.get("TWILIO_WA_FROM", "")
 TWILIO_WA_TO       = os.environ.get("TWILIO_WA_TO", "")
-PUBLIC_BASE_URL    = os.environ.get("BASE_URL", "").rstrip("/")
+BASE_URL           = "https://reel-machine.onrender.com"
 APPROVAL_TIMEOUT   = int(os.environ.get("APPROVAL_TIMEOUT", "3600"))
 REDIS_URL          = os.environ.get("REDIS_URL", "redis://localhost:6379/0")
 
@@ -99,8 +99,8 @@ def telegram_send_reel(job: dict, token: str) -> bool:
     caption     = job.get("caption", "")
     video_path  = job.get("video_path", "/tmp/dummy.mp4")
 
-    approve_url = f"{PUBLIC_BASE_URL}/approve?reel_id={reel_id}&action=approve&token={token}"
-    reject_url  = f"{PUBLIC_BASE_URL}/approve?reel_id={reel_id}&action=reject&token={token}"
+    approve_url = f"{BASE_URL}/approve?reel_id={reel_id}&action=approve&token={token}"
+    reject_url  = f"{BASE_URL}/approve?reel_id={reel_id}&action=reject&token={token}"
 
     keyboard = {"inline_keyboard": [[
         {"text": "✅ Approve & Post to ALL 3", "url": approve_url},
@@ -161,8 +161,8 @@ def whatsapp_send_reel(job: dict, token: str) -> bool:
     caption = job.get("caption", "")
     body_id = job.get("body_id", job.get("script", "N/A"))
 
-    approve_url = f"{PUBLIC_BASE_URL}/approve?reel_id={reel_id}&action=approve&token={token}"
-    reject_url  = f"{PUBLIC_BASE_URL}/approve?reel_id={reel_id}&action=reject&token={token}"
+    approve_url = f"{BASE_URL}/approve?reel_id={reel_id}&action=approve&token={token}"
+    reject_url  = f"{BASE_URL}/approve?reel_id={reel_id}&action=reject&token={token}"
 
     body = (
         f"🍽️ New Reel Ready!\n\n"
