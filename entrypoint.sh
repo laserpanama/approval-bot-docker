@@ -6,6 +6,9 @@ echo "   Timezone: $(date)"
 echo "   TZ env: ${TZ:-not set}"
 echo "   Redis: ${REDIS_URL:-redis://redis:6379/0}"
 
+# Ensure tmp directory exists for logs and processing
+mkdir -p /tmp/reel_machine
+
 # Wait for Redis to be ready
 echo "⏳ Waiting for Redis..."
 until python3 -c "import redis; redis.from_url('${REDIS_URL:-redis://redis:6379/0}').ping()" 2>/dev/null; do
