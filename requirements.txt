@@ -3,4 +3,6 @@ uvicorn
 redis
 requests
 python-dotenv
+openai
 schedule
+pydantic
