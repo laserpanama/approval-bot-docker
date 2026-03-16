@@ -1,80 +1,76 @@
 import os, json, logging, redis, requests, threading, time
 from fastapi import FastAPI
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import JSONResponse
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 app = FastAPI()
 
-r = redis.from_url(os.environ.get("REDIS_URL", "redis://localhost:6379/0"))
+# Configuración con valores limpios
+TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "").strip()
+CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID", "").strip()
+REDIS_URL = os.environ.get("REDIS_URL", "redis://localhost:6379/0")
 QUEUE_NAME = "ready_for_approval"
 
-# --- NUEVO ENDPOINT DE DEBUG ---
-@app.get("/debug")
-async def debug_redis():
-    """Permite ver qué hay en la cola desde el navegador"""
+r = redis.from_url(REDIS_URL)
+
+def telegram(text, kb=None):
+    url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
+    payload = {"chat_id": CHAT_ID, "text": text, "parse_mode": "Markdown"}
+    if kb: payload["reply_markup"] = json.dumps(kb)
     try:
-        tipo = r.type(QUEUE_NAME).decode('utf-8')
-        contenido = "Vacío"
-        if tipo == "list":
-            contenido = r.lrange(QUEUE_NAME, 0, -1)
-        elif tipo == "string":
-            contenido = r.get(QUEUE_NAME)
-        
-        return {
-            "queue_name": QUEUE_NAME,
-            "data_type": tipo,
-            "content_preview": contenido,
-            "keys_in_redis": r.keys("*")[:10] # Ver las primeras 10 llaves
-        }
+        res = requests.post(url, json=payload, timeout=10)
+        logger.info(f"Telegram response: {res.status_code}")
     except Exception as e:
-        return {"error": str(e)}
+        logger.error(f"Error Telegram: {e}")
+
+@app.get("/debug")
+async def debug():
+    keys = [k.decode('utf-8') for k in r.keys("*")]
+    tipo = r.type(QUEUE_NAME).decode('utf-8')
+    return {"keys_en_redis": keys, "tipo_cola": tipo, "queue_name": QUEUE_NAME}
 
 @app.get("/")
-async def home(): return "<h1>Bot Detector Online 🕵️‍♂️</h1><p>Prueba /debug para ver la cola.</p>"
+async def home(): return "Bot de Diagnóstico Activo 🕵️"
 
-@app.get("/approve")
-async def approve_reel(reel_id: str, action: str):
-    raw = r.get(f"reel:{reel_id}")
-    if raw:
-        data = json.loads(raw.decode('utf-8'))
-        if action == "approve":
-            requests.post(f"https://api.telegram.org/bot{os.environ.get('TELEGRAM_BOT_TOKEN')}/sendMessage", 
-                          json={"chat_id": os.environ.get("TELEGRAM_CHAT_ID"), "text": f"✅ Publicando: {reel_id}"})
-    return "OK"
+def worker():
+    logger.info("🕵️ Worker de Diagnóstico iniciado...")
+    # Saludo inicial para confirmar que el TOKEN y CHAT_ID están bien
+    telegram("🔍 **Worker de Diagnóstico Activo**\nBuscando reels en la base de datos...")
 
-def redis_worker():
-    logger.info(f"🚀 Worker buscando en '{QUEUE_NAME}'...")
     while True:
         try:
-            # 1. Intentar como LISTA (RPUSH/LPOP o BRPOP)
+            # 1. Intentar sacar de la lista
             item = r.lpop(QUEUE_NAME)
             
-            # 2. Si no hay lista, intentar como STRING (SET/GET)
+            # 2. Si no hay lista, intentar leer como string
             if not item:
                 item = r.get(QUEUE_NAME)
-                if item: r.delete(QUEUE_NAME) # Limpiar si era un string
+                if item: r.delete(QUEUE_NAME)
 
             if item:
-                logger.info("📥 ¡REEL CAPTURADO!")
                 data = json.loads(item.decode('utf-8'))
-                reel_id = data.get("reel_id", f"gen_{int(time.time())}")
+                rid = data.get("reel_id", "sin_id")
+                body = data.get("body", data.get("script", "Contenido vacío"))
                 
                 # Guardar para el botón
-                r.set(f"reel:{reel_id}", item, ex=86400)
+                r.set(f"reel:{rid}", item, ex=86400)
 
-                msg = f"🎬 **¡NUEVO REEL!**\nID: `{reel_id}`\n\n{data.get('body', data.get('script', 'Sin guion'))}"
-                kb = {"inline_keyboard": [[{"text": "✅ Aprobar", "url": f"https://reel-machine.onrender.com/approve?reel_id={reel_id}&action=approve"}]]}
-                
-                requests.post(f"https://api.telegram.org/bot{os.environ.get('TELEGRAM_BOT_TOKEN')}/sendMessage", 
-                              json={"chat_id": os.environ.get("TELEGRAM_CHAT_ID"), "text": msg, "parse_mode": "Markdown", "reply_markup": kb})
+                kb = {"inline_keyboard": [[{"text": "✅ Aprobar", "url": f"https://reel-machine.onrender.com/approve?reel_id={rid}&action=approve"}]]}
+                telegram(f"🎬 **¡REEL ENCONTRADO!**\nID: `{rid}`\n\n{body}", kb)
             
+            # 3. Escaneo de seguridad: Si no encuentra nada en la cola, ver si hay llaves sueltas
+            else:
+                all_keys = r.keys("hook_*") # Buscar si el generador los guarda con otro nombre
+                if all_keys:
+                    logger.info(f"Ojo: Encontré llaves sueltas: {all_keys}")
+
             time.sleep(5)
         except Exception as e:
-            logger.error(f"❌ Error: {e}")
+            logger.error(f"Error en worker: {e}")
             time.sleep(5)
 
-threading.Thread(target=redis_worker, daemon=True).start()
+threading.Thread(target=worker, daemon=True).start()
 
 if __name__ == "__main__":
     import uvicorn
