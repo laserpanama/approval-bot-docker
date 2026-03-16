@@ -30,6 +30,14 @@ env | grep -E 'METRICOOL|TELEGRAM|TWILIO|PUBLIC_BASE|INSTAGRAM|WHATSAPP|SHEETS|R
 service cron start
 echo "✅ Cron jobs scheduled (9am, 2pm, 7pm Panama time)"
 
+# Start Backup Agent (in background)
+echo "✅ Starting Backup Agent in background..."
+python3 -u /app/backup-team/src/backup.py &
+
+# Start Content Creator Agent (in background)
+echo "✅ Starting Content Creator in background..."
+python3 -u /app/content-creator/src/creator.py &
+
 # Start approval bot (blocks — keeps container alive)
-echo "✅ Starting approval bot on port 8080..."
-python3 /app/approval_bot.py
+echo "✅ Starting approval bot on port $PORT..."
+python3 -u /app/approval_bot.py

@@ -19,6 +19,11 @@ COPY pipeline.py .
 COPY pipeline_with_approval.py .
 COPY approval_bot.py .
 COPY multi_platform_publisher.py .
+
+# Include the worker and backup modules for the single-container architecture
+COPY content-creator/ ./content-creator/
+COPY backup-team/ ./backup-team/
+
 COPY entrypoint.sh .
 RUN chmod +x entrypoint.sh
 
