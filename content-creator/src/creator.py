@@ -312,7 +312,17 @@ Your hook:"""
         """Generate content on schedule"""
         print(f"Running scheduled generation with {self.config['name']}...")
         content = self.generate_hook()
-        self.push_to_queue(content)
+        
+        # Simula el guion completo
+        content['script'] = f"Guion rápido generado para el tema '{content['topic']}'.\n\n[INICIO]\n¡Asegúrate de sonreír y mantener un ritmo dinámico en todo momento!\n[FIN]"
+        
+        # Hace el push directo a la cola de aprobación
+        try:
+            self.redis_client.lpush('reel:ready_for_approval', json.dumps(content))
+            print(f"✓ Pushed FULL REEL #{content['id']} to ready_for_approval queue")
+            self.log_activity(f"Generated full reel: {content['hook'][:50]}...")
+        except Exception as e:
+            print(f"Failed to push to queue: {e}")
 
     def run(self):
         """Main loop"""
