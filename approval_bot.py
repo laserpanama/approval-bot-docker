@@ -94,11 +94,11 @@ def telegram_send_reel(job: dict, token: str) -> bool:
         log.warning("Telegram not configured — skipping")
         return False
 
-    reel_id     = job["reel_id"]
-    hook_id     = job["hook_id"]
-    body_id     = job["body_id"]
+    reel_id     = job.get("reel_id", "unknown_id")
+    hook_id     = job.get("hook_id", job.get("hook", "N/A"))
+    body_id     = job.get("body_id", job.get("script", "N/A"))
     caption     = job.get("caption", "")
-    video_path  = job["video_path"]
+    video_path  = job.get("video_path", "/tmp/dummy.mp4")
 
     approve_url = f"{PUBLIC_BASE_URL}/approve?reel_id={reel_id}&action=approve&token={token}"
     reject_url  = f"{PUBLIC_BASE_URL}/approve?reel_id={reel_id}&action=reject&token={token}"
@@ -158,15 +158,17 @@ def whatsapp_send_reel(job: dict, token: str) -> bool:
         log.warning("Twilio not configured — skipping WhatsApp")
         return False
 
-    reel_id = job["reel_id"]
+    reel_id = job.get("reel_id", "unknown_id")
     caption = job.get("caption", "")
+    hook_id = job.get("hook_id", job.get("hook", "N/A"))
+    body_id = job.get("body_id", job.get("script", "N/A"))
 
     approve_url = f"{PUBLIC_BASE_URL}/approve?reel_id={reel_id}&action=approve&token={token}"
     reject_url  = f"{PUBLIC_BASE_URL}/approve?reel_id={reel_id}&action=reject&token={token}"
 
     body = (
         f"🍽️ New Reel Ready!\n\n"
-        f"Hook: {job['hook_id']}\nBody: {job['body_id']}\n"
+        f"Hook: {hook_id}\nBody: {body_id}\n"
         f"Caption: {caption[:80]}...\n\n"
         f"✅ APPROVE (IG+TT+FB):\n{approve_url}\n\n"
         f"❌ REJECT:\n{reject_url}\n\n"
@@ -259,8 +261,8 @@ class ApprovalHandler(BaseHTTPRequestHandler):
         if action == "approve":
             log.info(f"✅ APPROVED — reel_id={reel_id}")
             results = post_to_platforms(
-                video_path=job["video_path"],
-                caption=job["caption"],
+                video_path=job.get("video_path", "/tmp/dummy.mp4"),
+                caption=job.get("caption", ""),
                 platforms=["instagram", "tiktok", "facebook"],
             )
             success = any(v is not None for v in results.values())
@@ -302,7 +304,8 @@ class ApprovalHandler(BaseHTTPRequestHandler):
 
         # Clean up video file
         try:
-            os.remove(job["video_path"])
+            if "video_path" in job:
+                os.remove(job["video_path"])
         except FileNotFoundError:
             pass
 
@@ -378,7 +381,8 @@ def _timeout_watcher(reel_id: str):
     job = _delete(reel_id)
     if job:
         try:
-            os.remove(job["video_path"])
+            if "video_path" in job:
+                os.remove(job["video_path"])
         except FileNotFoundError:
             pass
         try:
