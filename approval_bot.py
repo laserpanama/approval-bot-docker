@@ -95,7 +95,6 @@ def telegram_send_reel(job: dict, token: str) -> bool:
         return False
 
     reel_id     = job.get("reel_id", "unknown_id")
-    hook_id     = job.get("hook_id", job.get("hook", "N/A"))
     body_id     = job.get("body_id", job.get("script", "N/A"))
     caption     = job.get("caption", "")
     video_path  = job.get("video_path", "/tmp/dummy.mp4")
@@ -110,7 +109,7 @@ def telegram_send_reel(job: dict, token: str) -> bool:
 
     text = (
         f"🎬 *New Reel Ready — 3 Platforms*\n\n"
-        f"📎 Hook: `{hook_id}`\n"
+        f"📎 ID: `{reel_id}`\n"
         f"📎 Body: `{body_id}`\n"
         f"📝 {caption[:120]}\n\n"
         f"▶ Will post to: Instagram + TikTok + Facebook\n"
@@ -160,7 +159,6 @@ def whatsapp_send_reel(job: dict, token: str) -> bool:
 
     reel_id = job.get("reel_id", "unknown_id")
     caption = job.get("caption", "")
-    hook_id = job.get("hook_id", job.get("hook", "N/A"))
     body_id = job.get("body_id", job.get("script", "N/A"))
 
     approve_url = f"{PUBLIC_BASE_URL}/approve?reel_id={reel_id}&action=approve&token={token}"
@@ -168,7 +166,7 @@ def whatsapp_send_reel(job: dict, token: str) -> bool:
 
     body = (
         f"🍽️ New Reel Ready!\n\n"
-        f"Hook: {hook_id}\nBody: {body_id}\n"
+        f"ID: {reel_id}\nBody: {body_id}\n"
         f"Caption: {caption[:80]}...\n\n"
         f"✅ APPROVE (IG+TT+FB):\n{approve_url}\n\n"
         f"❌ REJECT:\n{reject_url}\n\n"
