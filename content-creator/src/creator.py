@@ -294,10 +294,19 @@ Your hook:"""
             print(f"Failed to push to queue: {e}")
 
     def log_activity(self, message: str):
-        """Log activity to file"""
-        timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        with open('/app/logs/creator.log', 'a') as f:
-            f.write(f"[{timestamp}] {message}\n")
+        """Log activity to file safely"""
+        try:
+            timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            log_dir = '/app/logs'
+            # Crear el directorio si no existe
+            if not os.path.exists(log_dir):
+                os.makedirs(log_dir)
+            
+            log_path = os.path.join(log_dir, 'creator.log')
+            with open(log_path, 'a') as f:
+                f.write(f"[{timestamp}] {message}\n")
+        except Exception as e:
+            print(f"Logging failed: {e}")
 
     def run_scheduled_generation(self):
         """Generate content on schedule"""
