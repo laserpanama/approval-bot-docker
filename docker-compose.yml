@@ -1,0 +1,95 @@
+services:
+
+  # ── MESSAGE BROKER ─────────────────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: reel-redis
+    restart: unless-stopped
+    volumes:
+      - redis-data:/data
+    command: redis-server --save 60 1 --loglevel warning
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── MAIN REEL ENGINE (pipeline + approval server + cron) ───────────────────
+  reel-machine:
+    build: .
+    container_name: food-reel-machine
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    volumes:
+      # - ./rclone.conf:/root/.config/rclone/rclone.conf:ro  # Temporarily disabled - will copy config out after setup
+      - ./data:/tmp/reel_machine
+    env_file: .env
+    environment:
+      - TZ=America/Panama
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  # ── AI CAPTION GENERATOR (personas: tiktok_strategist | growth_hacker | content_creator) ──
+  content-creator:
+    build: ./content-creator
+    container_name: reel-content-creator
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      - TZ=America/Panama
+      - REDIS_URL=redis://redis:6379/0
+      - CREATOR_PERSONA=${CREATOR_PERSONA:-tiktok_strategist}
+      - CONTENT_LANGUAGE=${CONTENT_LANGUAGE:-es}
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  # ── DAILY REDIS BACKUP ─────────────────────────────────────────────────────
+  backup-agent:
+    build: ./backup-team
+    container_name: reel-backup
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - BACKUP_INTERVAL=${BACKUP_INTERVAL:-86400}
+      - BACKUP_RETENTION_DAYS=${BACKUP_RETENTION_DAYS:-7}
+    volumes:
+      - ./backups:/backups
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  # ── HEALTH MONITOR ─────────────────────────────────────────────────────────
+  health-monitor:
+    build: ./backup-team
+    container_name: reel-health
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - ALERT_WEBHOOK_URL=${ALERT_WEBHOOK_URL:-}
+    command: python -m src.monitor
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  # ── COMMUNITY MANAGER (optional — only starts with --profile full) ─────────
+  community-manager:
+    build: ./community-manager
+    container_name: reel-community
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      redis:
+        condition: service_healthy
+    profiles:
+      - full
+
+volumes:
+  redis-data:

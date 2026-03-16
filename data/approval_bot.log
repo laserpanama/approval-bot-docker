@@ -1,0 +1,26 @@
+2026-03-12 19:57:01,773 [INFO] 🌐 Approval server running on port 8080
+2026-03-12 19:57:01,774 [INFO] 👂 Queue listener started — watching reel:ready_for_approval
+2026-03-12 19:57:01,774 [INFO] ✅ Approval bot ready — watching Redis + serving HTTP on :8080
+2026-03-13 00:00:51,612 [INFO] 🌐 Approval server running on port 8080
+2026-03-13 00:00:51,642 [INFO] 👂 Queue listener started — watching reel:ready_for_approval
+2026-03-13 00:00:51,644 [INFO] ✅ Approval bot ready — watching Redis + serving HTTP on :8080
+2026-03-13 00:36:31,630 [INFO] 🌐 Approval server running on port 8080
+2026-03-13 00:36:31,631 [INFO] 👂 Queue listener started — watching reel:ready_for_approval
+2026-03-13 00:36:31,631 [INFO] ✅ Approval bot ready — watching Redis + serving HTTP on :8080
+2026-03-13 00:38:09,962 [INFO] 🌐 Approval server running on port 8080
+2026-03-13 00:38:09,963 [INFO] 👂 Queue listener started — watching reel:ready_for_approval
+2026-03-13 00:38:09,963 [INFO] ✅ Approval bot ready — watching Redis + serving HTTP on :8080
+2026-03-13 03:25:13,607 [INFO] 🌐 Approval server running on port 8080
+2026-03-13 03:25:13,620 [INFO] ✅ Approval bot ready — watching Redis + serving HTTP on :8080
+2026-03-13 03:25:13,614 [INFO] 👂 Queue listener started — watching reel:ready_for_approval
+2026-03-13 04:24:23,597 [INFO] 🌐 Approval server running on port 8080
+2026-03-13 04:24:23,598 [INFO] 👂 Queue listener started — watching reel:ready_for_approval
+2026-03-13 04:24:23,599 [INFO] ✅ Approval bot ready — watching Redis + serving HTTP on :8080
+2026-03-14 22:46:01,165 [INFO] 🌐 Approval server running on port 8080
+2026-03-14 22:46:01,168 [INFO] 👂 Queue listener started — watching reel:ready_for_approval
+2026-03-14 22:46:01,169 [INFO] ✅ Approval bot ready — watching Redis + serving HTTP on :8080
+2026-03-14 23:04:01,869 [ERROR] Redis error in queue listener: Connection closed by server. — retrying in 10s
+2026-03-14 23:07:06,397 [INFO] 🌐 Approval server running on port 8080
+2026-03-14 23:07:06,399 [INFO] 👂 Queue listener started — watching reel:ready_for_approval
+2026-03-14 23:07:06,399 [INFO] ✅ Approval bot ready — watching Redis + serving HTTP on :8080
+2026-03-15 01:16:35,068 [ERROR] Redis error in queue listener: Connection closed by server. — retrying in 10s

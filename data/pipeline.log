@@ -1,0 +1,9 @@
+2026-03-13 00:03:11,161 [INFO] =======================================================
+2026-03-13 00:03:11,161 [INFO] 🍽️  Reel Machine — Starting pipeline run
+2026-03-13 00:03:11,162 [INFO]    DRY RUN: True
+2026-03-13 00:03:11,544 [ERROR] rclone lsf failed: 2026/03/13 00:03:11 CRITICAL: Failed to load config file "/root/.config/rclone/rclone.conf": read /root/.config/rclone/rclone.conf: is a directory
+
+2026-03-13 00:03:11,620 [ERROR] rclone lsf failed: 2026/03/13 00:03:11 CRITICAL: Failed to load config file "/root/.config/rclone/rclone.conf": read /root/.config/rclone/rclone.conf: is a directory
+
+2026-03-13 00:03:11,621 [INFO] Found 0 hooks, 0 bodies → 0 combos
+2026-03-13 00:03:11,622 [ERROR] No clips found in Google Drive. Aborting.
