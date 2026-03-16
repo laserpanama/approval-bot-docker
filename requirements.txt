@@ -4,5 +4,6 @@ redis
 requests
 python-dotenv
 openai
+anthropic
 schedule
 pydantic
