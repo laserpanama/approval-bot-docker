@@ -35,7 +35,7 @@ TWILIO_ACCOUNT_SID = os.environ.get("TWILIO_ACCOUNT_SID", "")
 TWILIO_AUTH_TOKEN  = os.environ.get("TWILIO_AUTH_TOKEN", "")
 TWILIO_WA_FROM     = os.environ.get("TWILIO_WA_FROM", "")
 TWILIO_WA_TO       = os.environ.get("TWILIO_WA_TO", "")
-PUBLIC_BASE_URL    = os.environ.get("PUBLIC_BASE_URL", "").rstrip("/")
+PUBLIC_BASE_URL    = os.environ.get("BASE_URL", "").rstrip("/")
 APPROVAL_TIMEOUT   = int(os.environ.get("APPROVAL_TIMEOUT", "3600"))
 REDIS_URL          = os.environ.get("REDIS_URL", "redis://localhost:6379/0")
 
