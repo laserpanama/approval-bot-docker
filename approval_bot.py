@@ -405,7 +405,8 @@ if __name__ == "__main__":
     os.makedirs("/tmp/reel_machine", exist_ok=True)
 
     # Start HTTP server
-    start_approval_server(port=8080)
+    port = int(os.environ.get("PORT", "8080"))
+    start_approval_server(port=port)
 
     # Start Redis queue listener in background
     t = threading.Thread(target=queue_listener, daemon=True)

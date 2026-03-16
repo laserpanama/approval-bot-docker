@@ -1,0 +1,66 @@
+services:
+
+  - type: redis
+    name: reel-redis
+    ipAllowList: [] # only allow internal connections
+    plan: free
+
+  - type: web
+    name: reel-machine
+    env: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    envVars:
+      - key: PORT
+        value: 8080
+      - key: TZ
+        value: America/Panama
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: reel-redis
+          property: connectionString
+      # Add the following in the Render Dashboard securely:
+      # - TELEGRAM_BOT_TOKEN
+      # - TELEGRAM_CHAT_ID
+      # - TWILIO_ACCOUNT_SID
+      # - TWILIO_AUTH_TOKEN
+      # - TWILIO_WA_FROM
+      # - TWILIO_WA_TO
+      # - PUBLIC_BASE_URL (Your Render web service URL)
+
+  - type: worker
+    name: reel-content-creator
+    env: docker
+    dockerContext: .
+    dockerfilePath: ./content-creator/Dockerfile
+    plan: free
+    envVars:
+      - key: TZ
+        value: America/Panama
+      - key: CREATOR_PERSONA
+        value: tiktok_strategist
+      - key: CONTENT_LANGUAGE
+        value: es
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: reel-redis
+          property: connectionString
+
+  - type: worker
+    name: reel-backup
+    env: docker
+    dockerContext: .
+    dockerfilePath: ./backup-team/Dockerfile
+    plan: free
+    envVars:
+      - key: BACKUP_INTERVAL
+        value: 86400
+      - key: BACKUP_RETENTION_DAYS
+        value: 7
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: reel-redis
+          property: connectionString
