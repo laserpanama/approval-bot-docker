@@ -16,11 +16,11 @@ services:
       - key: TZ
         value: America/Panama
       - key: CREATOR_PERSONA
-        value: tiktok_strategist
+        value: expert
       - key: CONTENT_LANGUAGE
         value: es
       - key: BACKUP_INTERVAL
-        value: 86400
+        value: 3600
       - key: BACKUP_RETENTION_DAYS
         value: 7
       - key: REDIS_URL
