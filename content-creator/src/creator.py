@@ -26,15 +26,15 @@ class ContentCreator:
         )
         self.persona = os.getenv('CREATOR_PERSONA', 'tiktok_strategist')
         self.queue_name = os.getenv('QUEUE_NAME', 'pending_hooks')
+        
+        # Language setting must be before load_persona!
+        self.language = os.getenv('CONTENT_LANGUAGE', 'en')
 
         # Initialize AI clients
         self.openai = OpenAI() if os.getenv('OPENAI_API_KEY') else None
         self.anthropic = anthropic.Anthropic() if os.getenv('ANTHROPIC_API_KEY') else None
 
         self.load_persona()
-
-        # Language setting
-        self.language = os.getenv('CONTENT_LANGUAGE', 'en')
 
     def load_persona(self):
         """Load the selected persona configuration"""
@@ -134,7 +134,7 @@ class ContentCreator:
             }
         }
 
-        personas = personas_es if self.language == 'es' else personas_en
+        personas = personas_es if getattr(self, 'language', 'en') == 'es' else personas_en
 
         self.config = personas.get(self.persona, personas['tiktok_strategist'])
         print(f"Loaded persona: {self.config['name']}")
