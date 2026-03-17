@@ -228,7 +228,7 @@ class ApprovalBot:
     def get_pending_hook(self) -> Optional[dict]:
         """Get next hook from Redis queue"""
         try:
-            data = self.redis_client.brpop('pending_hooks', timeout=5)
+            data = self.redis_client.brpop('ready_for_approval', timeout=5)
             if data:
                 return json.loads(data[1])
         except Exception as e:
