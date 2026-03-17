@@ -10,7 +10,7 @@ app = FastAPI()
 TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "").strip()
 CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID", "").strip()
 REDIS_URL = os.environ.get("REDIS_URL", "redis://localhost:6379/0")
-QUEUE_NAME = "ready_for_approval"
+QUEUE_NAME = "reel:ready_for_approval"
 
 r = redis.from_url(REDIS_URL)
 
@@ -50,8 +50,8 @@ def worker():
 
             if item:
                 data = json.loads(item.decode('utf-8'))
-                rid = data.get("reel_id", "sin_id")
-                body = data.get("body", data.get("script", "Contenido vacío"))
+                rid = data.get("reel_id", data.get("id", "sin_id"))
+                body = data.get("script", data.get("hook", "Contenido vacío"))
                 
                 # Guardar para el botón
                 r.set(f"reel:{rid}", item, ex=86400)
